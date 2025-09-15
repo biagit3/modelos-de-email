@@ -14,7 +14,6 @@
     a { color:var(--accent); text-decoration:none; }
     a:hover { text-decoration:underline; }
 
-    /* Sidebar */
     #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); padding:1rem .85rem 1.5rem; display:flex; flex-direction:column; gap:.75rem; }
     #searchBox { width:100%; padding:.55rem .65rem; border:1px solid var(--border); background:var(--panel-alt); color:var(--text); border-radius:6px; outline:none; }
     #groups { flex:1; overflow:auto; scrollbar-width:thin; }
@@ -27,7 +26,6 @@
     button.template-btn.active { background:linear-gradient(90deg,#2d3947,#22303d); border-color:var(--border); }
     button.template-btn span.badge { font-size:.6rem; background:var(--accent); padding:2px 5px; border-radius:10px; text-transform:uppercase; letter-spacing:.5px; }
 
-    /* Main */
     #main { flex:1; display:flex; flex-direction:column; min-width:0; }
     #topBar { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; padding:.75rem 1rem; border-bottom:1px solid var(--border); background:var(--panel); }
     #topBar select, #topBar button.mode { background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:.45rem .7rem; font:inherit; cursor:pointer; }
@@ -90,11 +88,17 @@
   </main>
 
   <script>
-    // -------------------------------------------------------------
-    // MAPEAMENTO DOS PARES (AGRUPADOS POR CATEGORIA)
-    // Adicione / altere conforme seu projeto. Caminhos relativos à pasta atual.
-    // -------------------------------------------------------------
+
     window.MODELOS = {
+        "Boas-vindas": [
+        {
+          id:"boas-vindas",
+          titulo:"Boas-vindas",
+          novo:"novo/boas-vindas/boas-vindas.html",
+          antigo:"originais/boas-vindas/modelo-boas-vindas.html"
+        }
+      ]
+      ,
       "Reserva": [
         {
           id:"confirmacao-reserva-convidado",
@@ -118,32 +122,31 @@
           id:"cancelamento-reserva-convidado",
           titulo:"Cancelamento Reserva (Convidado)",
           novo:"novo/Reserva/cancelamento-reserva-convidado.html",
-          antigo:"originais/Reservas/confirmacao-cancelamento-reserva.htm"
-        }
-        ,
-        {
-          id:"confirmacao-cancelamento-reserva",
-          titulo:"Confirmação Cancelamento Reserva",
-          novo:"novo/Reserva/confirmacao-cancelamento-reserva.html",
-          antigo:"originais/Reservas/confirmacao-cancelamento-reserva.htm"
+          antigo:"originais/Reservas/confirmacao-cancelamento-reserva-convidado.html"
+        },
+         {
+          id: "confirmacao-cancelamento-reserva",
+          titulo: "Confirmação Cancelamento Reserva",
+          novo: "novo/Reserva/confirmacao-cancelamento-reserva.html",
+          antigo: "originais/Reservas/confirmacao-cancelamento-reserva.htm"
         },
         {
-          id:"confirmacao-checkout-reserva",
-          titulo:"Confirmação Checkout Reserva",
-          novo:"novo/Reserva/confirmacao-checkout-reserva.html",
-          antigo:"originais/Reservas/confirmacao-checkout-reserva.html"
+          id: "confirmacao-checkout-reserva",
+          titulo: "Confirmação Checkout Reserva",
+          novo: "novo/Reserva/confirmacao-checkout-reserva.html",
+          antigo: "originais/Reservas/confirmacao-checkout-reserva.html"
         },
         {
-          id:"confirmacao-reserva",
-          titulo:"Confirmação Reserva (padrão)",
-          novo:"novo/Reserva/confirmação-reserva.html",
-          antigo:"originais/Reservas/confirmacao-reserva-original.html"
+          id: "confirmacao-reserva-original",
+          titulo: "Confirmação Reserva",
+          novo: "novo/Reserva/confirmação-reserva.html",
+          antigo: "originais/Reservas/confirmacao-reserva-original.html"
         },
         {
-          id:"notificacao-alteracao-reserva-root",
-          titulo:"Notificação Alteração (padrão)",
-          novo:"novo/notificacao-alteracao-reserva.html",
-          antigo:"originais/Reservas/Notificação de alteração de reserva.html"
+          id: "notificacao-alteracao-reserva",
+          titulo: "Notificação Alteração Reserva",
+          novo: "novo/notificacao-alteracao-reserva.html",
+          antigo: "originais/Reservas/notificacao-alteracao-reserva.html"
         }
       ],
       "Convite": [
@@ -158,13 +161,6 @@
           titulo:"Alteração Convite Convidado",
           novo:"novo/convite/alteracao-convite-convidado.html",
           antigo:"originais/convite/alteracao-convite-visitantes.html"
-        }
-        ,
-        {
-          id:"cancelamento-convite-candidato",
-          titulo:"Cancelamento Convite Candidato",
-          novo:"novo/convite/cancelamento-convite-candidato.html",
-          antigo:"originais/convite/cancelamento-convite-visitante.html"
         }
       ],
       "Contratos": [
@@ -187,37 +183,8 @@
           antigo:"originais/contrato/reajuste-contrato.html"
         }
       ],
-      "Contatos": [
-        {
-          id:"envio-contrato-passos",
-          titulo:"Envio Contrato (Passos)",
-          novo:"novo/contratos/envio-contrato.html",
-          antigo:"originais/contrato/envio-contrato.html" 
-        }
-      ],
-      "Atendimento": [
-        {
-          id:"notificacao-novo-atendimento",
-          titulo:"Notificação Novo Atendimento",
-          novo:"novo/atendimento/notificacao-novo-atendimento.html",
-          antigo:"originais/atendimento/notificacao-novo-atendimento.html"
-        },
-        {
-          id:"notificacao-novo-atendimento-cliente-bloqueado",
-          titulo:"Notificação Atendimento - Cliente Bloqueado",
-          novo:"novo/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html",
-          antigo:"originais/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html"
-        }
-      ],
-      "Boas-vindas": [
-        {
-          id:"boas-vindas",
-          titulo:"Boas-vindas Novo",
-          novo:"novo/boas-vindas/boas-vindas.html",
-          antigo:"modelo-boas-vindas.html" 
-        }
-      ]
-      ,
+
+
       "Correspondências": [
         {
           id: "entrega-correspondencia-email",
@@ -235,7 +202,7 @@
           id: "nova-correspondencia",
           titulo: "Nova Correspondências",
           novo: "novo/correspondencia/notificacao-nova-correspondencia.html",
-          antigo: "originais/correspondencia/nova-correspondencia.html"
+          antigo: "originais/correspondencia/lembrete-nova-correspondencia.html"
         }
       ],
       "Pagamento": [
@@ -250,13 +217,115 @@
           titulo: "Pagamento Recusado",
           novo: "novo/pagamento/notificacao-pagamento-recusado.html",
           antigo: "originais/pagamento/notificacao-pagamento-recusado.html"
+        },
+        {
+          id:"fatura",
+          titulo:"Fatura",
+          novo:"novo/fatura/impressao-fatura.html",
+          antigo:"originais/fatura/impressao-fatura.html"
+        }
+      ],
+      "Atendimento": [
+        {
+          id: "notificacao-novo-atendimento",
+          titulo: "Novo Atendimento",
+          novo: "novo/atendimento/notificacao-novo-atendimento.html",
+          antigo: "originais/atendimento/notificacao-novo-atendimento.html"
+        },
+        {
+          id: "notificacao-novo-atendimento-cliente-bloqueado",
+          titulo: "Novo Atendimento (Cliente Bloqueado)",
+          novo: "novo/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html",
+          antigo: "originais/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html"
+        }
+      ],
+      "Boleto": [
+        {
+          id: "aviso-pagamento-atraso",
+          titulo: "Aviso Pagamento em Atraso",
+          novo: "novo/boleto/aviso-pagamento-atraso.html",
+          antigo: "originais/boleto/aviso-pagamento-atraso.html"
+        },
+        {
+          id: "aviso-pendencia-pagamento",
+          titulo: "Aviso Pendência Pagamento",
+          novo: "novo/boleto/aviso-pendencia-pagamento.html",
+          antigo: "originais/boleto/aviso-pendencia-pagamento.html"
+        },
+        {
+          id: "extrato-boletos-e-servicos",
+          titulo: "Extrato Boletos e Serviços",
+          novo: "novo/boleto/extrato-boletos-e-servicos.html",
+          antigo: "originais/boleto/extrato-boletos-e-servicos.html"
+        },
+        {
+          id: "nota-fiscal",
+          titulo: "Nota Fiscal",
+          novo: "novo/boleto/nota-fiscal.html",
+          antigo: "originais/boleto/nota-fiscal.html"
+        },
+        {
+          id: "pagamento-nao-identificado",
+          titulo: "Pagamento Não Identificado",
+          novo: "novo/boleto/pagamento-nao-identificado.html",
+          antigo: "originais/boleto/pagamento-nao-identificado.html"
+        },
+        {
+          id: "segunda-via-boletos-e-servicos",
+          titulo: "Segunda Via Boletos e Serviços",
+          novo: "novo/boleto/segunda-via-boletos-e-servicos.html",
+          antigo: "originais/boleto/segunda-via-boletos-e-servicos.html"
+        }
+      ],
+      "Convite Extra": [
+        {
+          id: "cancelamento-convite-candidato",
+          titulo: "Cancelamento Convite (Candidato)",
+          novo: "novo/convite/cancelamento-convite-candidato.html",
+          antigo: "originais/convite/cancelamento-convite-visitante.html"
+        }
+      ],
+      "Correspondencias": [
+        {
+          id: "entrega-correspondencia-email-2",
+          titulo: "Entrega Correspondência email",
+          novo: "novo/correspondencia/entrega-correspondencia-email.html",
+          antigo: "originais/correspondencia/entrega-correspondencia-email.html"
+        },
+        {
+          id: "lembrete-nova-correspondencia-2",
+          titulo: "Lembrete Nova Correspondência ",
+          novo: "novo/correspondencia/lembrete-nova-correspondencia.html",
+          antigo: "originais/correspondencia/lembrete-nova-correspondencia.html"
+        },
+        {
+          id: "notificacao-nova-correspondencia",
+          titulo: "Notificação Nova Correspondência",
+          novo: "novo/correspondencia/notificacao-nova-correspondencia.html",
+          antigo: "originais/correspondencia/nova-correspondencia.html"
+        }
+      ],
+      "Divida": [
+        {
+          id: "confissao-de-divida",
+          titulo: "Confissão de Dívida",
+          novo: "novo/divida/confissao-de-divida.html",
+          antigo: "originais/modelo-original-cobranca.html" // fallback genérico
+        }
+      ],
+      "Reserva Extra": [
+       
+      ],
+      "Vendas": [
+        {
+          id: "modelo-resumo-vendas",
+          titulo: "Resumo Vendas",
+          novo: "novo/vendas/modelo-resumo-vendas.html",
+          antigo: "novo/vendas/modelo-resumo-vendas.html" // sem original listado
         }
       ]
     };
 
-    // -------------------------------------------------------------
-    // UI BUILD
-    // -------------------------------------------------------------
     const groupsEl = document.getElementById('groups');
     function buildMenu(){
       groupsEl.innerHTML = '';
@@ -279,9 +348,7 @@
     buildMenu();
     document.getElementById('searchBox').addEventListener('input', buildMenu);
 
-    // -------------------------------------------------------------
-    // CARREGAMENTO E DIFF
-    // -------------------------------------------------------------
+  
   const oldWrap = document.getElementById('oldWrap');
   const newWrap = document.getElementById('newWrap');
     const statusEl = document.getElementById('status');
@@ -329,9 +396,7 @@
       }
     }
 
-    // -------------------------------------------------------------
-    // MODOS DE VISUALIZAÇÃO (renderizados)
-    // -------------------------------------------------------------
+
     const modeButtons = document.querySelectorAll('button.mode');
     let mode = 'side';
     modeButtons.forEach(b=> b.addEventListener('click', ()=>{ modeButtons.forEach(x=>x.classList.remove('active')); b.classList.add('active'); mode=b.dataset.mode; renderMode(); }));
@@ -346,9 +411,7 @@
       else if(mode==='antigo'){ paneNovo.style.display='none'; viewer.style.gridTemplateColumns='1fr'; statusEl.textContent='Mostrando somente o original'; }
       else { statusEl.textContent='Lado a lado'; }
     }
-    // Código de diff removido conforme solicitação (mostrar páginas renderizadas).
 
-    // Inicial: seleciona o primeiro modelo automaticamente
     const first = Object.values(window.MODELOS)[0]?.[0];
     if(first) loadPair(first);
   </script>
