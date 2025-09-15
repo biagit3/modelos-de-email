@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Comparativo de Modelos de E-mail</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg:#0f1115; --panel:#1c2129; --panel-alt:#252c35; --border:#2f3742; --text:#e9edf2; --accent:#58a6ff; --danger:#ff637d; --warn:#ffb347; --ok:#4cc38a; --mono:"SFMono-Regular",Consolas,monospace;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:var(--text); display:flex; min-height:100vh; }
+    h1 { font-size:1.15rem; margin:0 0 .75rem; letter-spacing:.5px; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+
+    /* Sidebar */
+    #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); padding:1rem .85rem 1.5rem; display:flex; flex-direction:column; gap:.75rem; }
+    #searchBox { width:100%; padding:.55rem .65rem; border:1px solid var(--border); background:var(--panel-alt); color:var(--text); border-radius:6px; outline:none; }
+    #groups { flex:1; overflow:auto; scrollbar-width:thin; }
+    .group { margin-bottom:1rem; }
+    .group h2 { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; opacity:.7; margin:.75rem 0 .35rem; display:flex; align-items:center; gap:.35rem; }
+    ul.templates { list-style:none; margin:0; padding:0; }
+    ul.templates li { margin:0; padding:0; }
+    button.template-btn { width:100%; text-align:left; background:transparent; border:1px solid transparent; color:var(--text); padding:.5rem .55rem; border-radius:6px; font:inherit; cursor:pointer; position:relative; display:flex; gap:.5rem; align-items:center; }
+    button.template-btn:hover { background:var(--panel-alt); }
+    button.template-btn.active { background:linear-gradient(90deg,#2d3947,#22303d); border-color:var(--border); }
+    button.template-btn span.badge { font-size:.6rem; background:var(--accent); padding:2px 5px; border-radius:10px; text-transform:uppercase; letter-spacing:.5px; }
+
+    /* Main */
+    #main { flex:1; display:flex; flex-direction:column; min-width:0; }
+    #topBar { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; padding:.75rem 1rem; border-bottom:1px solid var(--border); background:var(--panel); }
+    #topBar select, #topBar button.mode { background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:.45rem .7rem; font:inherit; cursor:pointer; }
+    #topBar button.mode.active { background:var(--accent); color:#041b33; font-weight:600; }
+    #status { font-size:.7rem; opacity:.65; margin-left:auto; }
+
+  #viewer { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--border); }
+  .pane { position:relative; background:var(--panel-alt); display:flex; flex-direction:column; min-width:0; }
+  .pane header { font-size:.7rem; font-weight:600; letter-spacing:.5px; padding:.5rem .75rem; border-bottom:1px solid var(--border); background:#22303b; display:flex; justify-content:space-between; align-items:center; }
+  .pane header small { opacity:.65; font-weight:400; }
+  .frame-wrap { flex:1; position:relative; display:flex; }
+  .frame-wrap iframe { width:100%; height:100%; border:0; background:#fff; }
+  .loading { opacity:.6; font-style:italic; padding:.75rem; font:12px/1.3 var(--mono); }
+
+    /* Diff styling */
+    .diff-line { display:block; white-space:pre-wrap; word-break:break-word; padding:2px 6px; border-radius:4px; margin:0; position:relative; }
+    .diff-same { background:transparent; opacity:.6; }
+    .diff-add { background:rgba(76,195,138,.12); }
+    .diff-del { background:rgba(255,99,125,.15); text-decoration:none; }
+    .diff-chg { background:rgba(255,179,71,.18); }
+    .ln { opacity:.35; margin-right:.5rem; display:inline-block; min-width:42px; }
+    mark { background:rgba(255,255,0,.35); padding:0 2px; border-radius:2px; }
+
+    #emptyMsg { display:flex; flex:1; align-items:center; justify-content:center; font-size:.9rem; gap:.5rem; flex-direction:column; color:#88939f; }
+
+    #footer { padding:.4rem .75rem; font-size:.6rem; text-align:right; background:var(--panel); border-top:1px solid var(--border); }
+
+    /* Responsive */
+    @media (max-width:1100px) { #viewer { grid-template-columns:1fr; } .pane { min-height:50vh; } }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <h1>Comparativo de Modelos</h1>
+    <input id="searchBox" placeholder="Filtrar (ex: reserva, convite)" />
+    <div id="groups"></div>
+    <div style="font-size:.6rem; opacity:.55; line-height:1.2;">
+      <p>Edite a lista em <code>window.MODELOS</code> para adicionar/remover pares.</p>
+    </div>
+  </aside>
+  <main id="main">
+    <div id="topBar">
+      <button class="mode active" data-mode="side">Lado a lado</button>
+      
+            <button class="mode" data-mode="antigo">Só Antigo</button>
+<button class="mode" data-mode="novo">Só Novo</button>
+      <div id="status">Selecione um modelo...</div>
+    </div>
+    <div id="viewer">
+      <div class="pane" id="pane-antigo">
+        <header><span>ATUAL / ORIGINAL</span><small id="oldPath"></small></header>
+        <div class="frame-wrap" id="oldWrap"><div id="emptyOld" class="loading">Nenhum arquivo carregado.</div></div>
+      </div>
+      <div class="pane" id="pane-novo">
+        <header><span>NOVO</span><small id="newPath"></small></header>
+        <div class="frame-wrap" id="newWrap"><div id="emptyNew" class="loading">Nenhum arquivo carregado.</div></div>
+      </div>
+    </div>
+    <div id="footer">Ferramenta estática de comparação • Ajuste e expanda conforme necessário.</div>
+  </main>
+
+  <script>
+    // -------------------------------------------------------------
+    // MAPEAMENTO DOS PARES (AGRUPADOS POR CATEGORIA)
+    // Adicione / altere conforme seu projeto. Caminhos relativos à pasta atual.
+    // -------------------------------------------------------------
+    window.MODELOS = {
+      "Reserva": [
+        {
+          id:"confirmacao-reserva-convidado",
+          titulo:"Confirmação Reserva (Convidado)",
+          novo:"novo/Reserva/confirmacao-reserva-convidado.html",
+          antigo:"originais/Reservas/Confirmação da Reserva Convidado.html"
+        },
+        {
+          id:"confirmacao-reserva-recorrente",
+          titulo:"Confirmação Reserva Recorrente",
+          novo:"novo/Reserva/confirmacao-reserva-recorrente.html",
+          antigo:"originais/Reservas/confirmacao-reserva-recorrente.html"
+        },
+        {
+          id:"notificacao-alteracao-reserva",
+          titulo:"Notificação Alteração (Convidado)",
+          novo:"novo/Reserva/notificacao-alteracao-reserva-convidado.html",
+          antigo:"originais/Reservas/notificacao-alteracao-reserva-convidado.html"
+        },
+        {
+          id:"cancelamento-reserva-convidado",
+          titulo:"Cancelamento Reserva (Convidado)",
+          novo:"novo/Reserva/cancelamento-reserva-convidado.html",
+          antigo:"originais/Reservas/confirmacao-cancelamento-reserva.htm"
+        }
+        ,
+        {
+          id:"confirmacao-cancelamento-reserva",
+          titulo:"Confirmação Cancelamento Reserva",
+          novo:"novo/Reserva/confirmacao-cancelamento-reserva.html",
+          antigo:"originais/Reservas/confirmacao-cancelamento-reserva.htm"
+        },
+        {
+          id:"confirmacao-checkout-reserva",
+          titulo:"Confirmação Checkout Reserva",
+          novo:"novo/Reserva/confirmacao-checkout-reserva.html",
+          antigo:"originais/Reservas/confirmacao-checkout-reserva.html"
+        },
+        {
+          id:"confirmacao-reserva",
+          titulo:"Confirmação Reserva (padrão)",
+          novo:"novo/Reserva/confirmação-reserva.html",
+          antigo:"originais/Reservas/confirmacao-reserva-original.html"
+        },
+        {
+          id:"notificacao-alteracao-reserva-root",
+          titulo:"Notificação Alteração (padrão)",
+          novo:"novo/notificacao-alteracao-reserva.html",
+          antigo:"originais/Reservas/Notificação de alteração de reserva.html"
+        }
+      ],
+      "Convite": [
+        {
+          id:"convite-espaco-convidado",
+          titulo:"Convite Espaço (Convidado)",
+          novo:"novo/convite/convite-espaco-convidado.html",
+          antigo:"originais/Reservas/modelo-convite-espaço-convidado.html"
+        },
+        {
+          id:"alteracao-convite-convidado",
+          titulo:"Alteração Convite Convidado",
+          novo:"novo/convite/alteracao-convite-convidado.html",
+          antigo:"originais/convite/alteracao-convite-visitantes.html"
+        }
+        ,
+        {
+          id:"cancelamento-convite-candidato",
+          titulo:"Cancelamento Convite Candidato",
+          novo:"novo/convite/cancelamento-convite-candidato.html",
+          antigo:"originais/convite/cancelamento-convite-visitante.html"
+        }
+      ],
+      "Contratos": [
+        {
+          id:"envio-contrato",
+            titulo:"Envio de Contrato",
+            novo:"novo/contratos/envio-contrato.html",
+            antigo:"originais/contrato/envio-contrato.html"
+        },
+        {
+          id:"resumo-contrato",
+          titulo:"Resumo de Contrato",
+          novo:"novo/contratos/resumo-contrato.html",
+          antigo:"originais/contrato/resumo-contrato.html"
+        },
+        {
+          id:"reajuste-contrato",
+          titulo:"Reajuste de Contrato",
+          novo:"novo/contratos/reajuste-contrato.html",
+          antigo:"originais/contrato/reajuste-contrato.html"
+        }
+      ],
+      "Contatos": [
+        {
+          id:"envio-contrato-passos",
+          titulo:"Envio Contrato (Passos)",
+          novo:"novo/contratos/envio-contrato.html",
+          antigo:"originais/contrato/envio-contrato.html" 
+        }
+      ],
+      "Atendimento": [
+        {
+          id:"notificacao-novo-atendimento",
+          titulo:"Notificação Novo Atendimento",
+          novo:"novo/atendimento/notificacao-novo-atendimento.html",
+          antigo:"originais/atendimento/notificacao-novo-atendimento.html"
+        },
+        {
+          id:"notificacao-novo-atendimento-cliente-bloqueado",
+          titulo:"Notificação Atendimento - Cliente Bloqueado",
+          novo:"novo/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html",
+          antigo:"originais/atendimento/notificacao-novo-atendimento-cliente-bloqueado.html"
+        }
+      ],
+      "Boas-vindas": [
+        {
+          id:"boas-vindas",
+          titulo:"Boas-vindas Novo",
+          novo:"novo/boas-vindas/boas-vindas.html",
+          antigo:"modelo-boas-vindas.html" 
+        }
+      ]
+      ,
+      "Correspondências": [
+        {
+          id: "entrega-correspondencia-email",
+          titulo: "Entrega de Correspondência (com anexo)",
+          novo: "novo/correspondencia/entrega-correspondencia-email.html",
+          antigo: "originais/correspondencia/entrega-correspondencia-email.html"
+        },
+        {
+          id: "lembrete-nova-correspondencia",
+          titulo: "Lembrete de Correspondências",
+          novo: "novo/correspondencia/lembrete-nova-correspondencia.html",
+          antigo: "originais/correspondencia/lembrete-nova-correspondencia.html"
+        },
+         {
+          id: "nova-correspondencia",
+          titulo: "Nova Correspondências",
+          novo: "novo/correspondencia/notificacao-nova-correspondencia.html",
+          antigo: "originais/correspondencia/nova-correspondencia.html"
+        }
+      ],
+      "Pagamento": [
+        {
+          id: "notificacao-pagamento-confirmado",
+          titulo: "Pagamento Confirmado",
+          novo: "novo/pagamento/notificacao-pagamento-confirmado.html",
+          antigo: "originais/pagamento/notificacao-pagamento-confirmado.html"
+        },
+        {
+          id: "notificacao-pagamento-recusado",
+          titulo: "Pagamento Recusado",
+          novo: "novo/pagamento/notificacao-pagamento-recusado.html",
+          antigo: "originais/pagamento/notificacao-pagamento-recusado.html"
+        }
+      ]
+    };
+
+    // -------------------------------------------------------------
+    // UI BUILD
+    // -------------------------------------------------------------
+    const groupsEl = document.getElementById('groups');
+    function buildMenu(){
+      groupsEl.innerHTML = '';
+      const filter = document.getElementById('searchBox').value.toLowerCase();
+      Object.entries(window.MODELOS).forEach(([grupo, itens]) => {
+        const filtrados = itens.filter(m => !filter || m.titulo.toLowerCase().includes(filter) || m.id.includes(filter));
+        if(!filtrados.length) return;
+        const wrap = document.createElement('div'); wrap.className='group';
+        wrap.innerHTML = `<h2>${grupo}</h2>`;
+        const ul = document.createElement('ul'); ul.className='templates';
+        filtrados.forEach(m => {
+          const li = document.createElement('li');
+          li.innerHTML = `<button class="template-btn" data-id="${m.id}"><span>${m.titulo}</span><span class="badge">${grupo}</span></button>`;
+          ul.appendChild(li);
+        });
+        wrap.appendChild(ul);
+        groupsEl.appendChild(wrap);
+      });
+    }
+    buildMenu();
+    document.getElementById('searchBox').addEventListener('input', buildMenu);
+
+    // -------------------------------------------------------------
+    // CARREGAMENTO E DIFF
+    // -------------------------------------------------------------
+  const oldWrap = document.getElementById('oldWrap');
+  const newWrap = document.getElementById('newWrap');
+    const statusEl = document.getElementById('status');
+    const oldPathEl = document.getElementById('oldPath');
+    const newPathEl = document.getElementById('newPath');
+
+    let current = null;
+
+    function selectButton(id){
+      document.querySelectorAll('.template-btn').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+    }
+
+    groupsEl.addEventListener('click', e => {
+      const btn = e.target.closest('.template-btn');
+      if(!btn) return;
+      const id = btn.dataset.id;
+      const item = Object.values(window.MODELOS).flat().find(m=>m.id===id);
+      if(item) loadPair(item);
+    });
+
+    async function loadPair(item){
+      current = item;
+      selectButton(item.id);
+      statusEl.textContent = 'Carregando...';
+      oldWrap.innerHTML = '<div class="loading">Carregando original...</div>';
+      newWrap.innerHTML = '<div class="loading">Carregando novo...</div>';
+      oldPathEl.textContent = item.antigo;
+      newPathEl.textContent = item.novo;
+      try {
+        // Substitui conteúdo pelo iframe renderizado.
+        const iframeOld = document.createElement('iframe');
+        iframeOld.setAttribute('sandbox','allow-same-origin');
+        iframeOld.src = encodeURI(item.antigo);
+        const iframeNew = document.createElement('iframe');
+        iframeNew.setAttribute('sandbox','allow-same-origin');
+        iframeNew.src = encodeURI(item.novo);
+        oldWrap.innerHTML=''; oldWrap.appendChild(iframeOld);
+        newWrap.innerHTML=''; newWrap.appendChild(iframeNew);
+        statusEl.textContent = 'Renderizado';
+        renderMode();
+      } catch(err){
+        statusEl.textContent = 'Erro';
+        oldWrap.innerHTML = '<div class="loading">Falha: '+err+'</div>';
+        newWrap.innerHTML = '<div class="loading">Falha: '+err+'</div>';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MODOS DE VISUALIZAÇÃO (renderizados)
+    // -------------------------------------------------------------
+    const modeButtons = document.querySelectorAll('button.mode');
+    let mode = 'side';
+    modeButtons.forEach(b=> b.addEventListener('click', ()=>{ modeButtons.forEach(x=>x.classList.remove('active')); b.classList.add('active'); mode=b.dataset.mode; renderMode(); }));
+
+    function renderMode(){
+      const viewer = document.getElementById('viewer');
+      const paneAntigo = document.getElementById('pane-antigo');
+      const paneNovo = document.getElementById('pane-novo');
+      paneAntigo.style.display = paneNovo.style.display = 'flex';
+      viewer.style.gridTemplateColumns = '1fr 1fr';
+      if(mode==='novo'){ paneAntigo.style.display='none'; viewer.style.gridTemplateColumns='1fr'; statusEl.textContent='Mostrando somente o novo'; }
+      else if(mode==='antigo'){ paneNovo.style.display='none'; viewer.style.gridTemplateColumns='1fr'; statusEl.textContent='Mostrando somente o original'; }
+      else { statusEl.textContent='Lado a lado'; }
+    }
+    // Código de diff removido conforme solicitação (mostrar páginas renderizadas).
+
+    // Inicial: seleciona o primeiro modelo automaticamente
+    const first = Object.values(window.MODELOS)[0]?.[0];
+    if(first) loadPair(first);
+  </script>
+</body>
+</html>
